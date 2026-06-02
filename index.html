@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng Dụng Luyện Phát Âm Tiếng Trung</title>
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --bg-color: #f5f6fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--secondary-color);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        /* Khu vực hiển thị câu hỏi */
+        .practice-box {
+            text-align: center;
+            padding: 30px;
+            background: #fff8f7;
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .chinese-text {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+            letter-spacing: 2px;
+        }
+
+        .pinyin-text {
+            font-size: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .meaning-text {
+            font-size: 18px;
+            color: #34495e;
+        }
+
+        /* Nút điều khiển */
+        .control-btns {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-nav { background-color: var(--secondary-color); color: white; }
+        .btn-speak { background-color: #3498db; color: white; }
+        .btn-record { background-color: var(--primary-color); color: white; }
+        .btn-record.recording { animation: pulse 1.5s infinite; background
