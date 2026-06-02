@@ -3,84 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ứng Dụng Luyện Phát Âm Tiếng Trung</title>
+    <title>App Luyện Phát Âm Tiếng Trung</title>
     <style>
-        :root {
-            --primary-color: #e74c3c;
-            --secondary-color: #2c3e50;
-            --success-color: #2ecc71;
-            --bg-color: #f5f6fa;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 20px;
-            color: var(--secondary-color);
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        h1, h2 {
-            text-align: center;
-            color: var(--primary-color);
-        }
-
-        /* Khu vực hiển thị câu hỏi */
-        .practice-box {
-            text-align: center;
-            padding: 30px;
-            background: #fff8f7;
-            border: 2px dashed var(--primary-color);
-            border-radius: 8px;
-            margin-bottom: 25px;
-        }
-
-        .chinese-text {
-            font-size: 48px;
-            font-weight: bold;
-            margin: 10px 0;
-            letter-spacing: 2px;
-        }
-
-        .pinyin-text {
-            font-size: 20px;
-            color: #7f8c8d;
-            font-style: italic;
-        }
-
-        .meaning-text {
-            font-size: 18px;
-            color: #34495e;
-        }
-
-        /* Nút điều khiển */
-        .control-btns {
+            background-color: #f4f7f6;
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 25px;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-
-        button {
-            padding: 12px 25px;
-            font-size: 16px;
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+        h1 { color: #2c3e50; margin-bottom: 24px; font-size: 24px; }
+        .word-container { margin: 20px 0; }
+        .chinese { font-size: 48px; font-weight: bold; color: #e74c3c; margin: 0; }
+        .pinyin { font-size: 20px; color: #7f8c8d; margin: 5px 0 15px 0; }
+        .meaning { font-size: 16px; color: #34495e; italic; }
+        
+        .btn {
+            background-color: #3498db;
+            color: white;
             border: none;
-            border-radius: 25px;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 30px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
             font-weight: bold;
         }
+        .btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .btn-speak { background-color: #2ecc71; }
+        .btn-speak:hover { background-color: #27ae60; }
+        .btn-speak.recording { background-color: #e74c3c; animation: pulse 1.5s infinite; }
 
-        .btn-nav { background-color: var(--secondary-color); color: white; }
-        .btn-speak { background-color: #3498db; color: white; }
-        .btn-record { background-color: var(--primary-color); color: white; }
-        .btn-record.recording { animation: pulse 1.5s infinite; background
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 18px;
+            display: none;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .fail { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .user-voice { font-weight: normal; font-size: 15px; color: #555; margin-top: 5px; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Luyện Phát Âm Tiếng Trung</h1>
+    
+    <div class="word-container">
+        <p class="chinese" id="zh-text">你好</p>
+        <p class="pinyin" id="py-text">nǐ hǎo</p>
+        <p class="meaning" id="vn-text">Ý nghĩa: Xin chào</p>
+    </div>
+
+    <div>
+        <button class="btn" onclick="playAudio()">🔊 Nghe Mẫu</button>
+        <button class="btn btn-speak" id="btn-mic" onclick="startRecognition()">🎤 Nhấn & Nói</button>
+        <button class="btn" onclick="nextWord()" style="background-color: #9b59b6;">Từ Tiếp Theo ➡️</button>
+    </div>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    // Danh sách từ vựng mẫu (Bạn có thể thêm tùy ý)
+    const wordList = [
+        { zh: "你好", py: "nǐ hǎo", vn: "Xin chào" },
+        { zh: "谢谢", py: "xièxie", vn: "Cảm ơn" },
+        { zh: "再见", py: "zàijiàn", vn: "Tạm biệt" },
+        { zh: "我爱你", py: "wǒ ài nǐ", vn: "Tôi yêu bạn" },
+        { zh: "中国", py: "Zhōngguó", vn: "Trung Quốc" },
+        { zh: "冰淇淋", py: "bīngqílín", vn: "Kem" },
+        { zh: "苹果", py: "píngguǒ", vn: "Quả táo" }
+    ];
+
+    let currentIndex = 0;
+
+    // Cấu hình Bộ Nhận Diện Giọng Nói (Speech Recognition)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'zh-CN'; // Đặt ngôn ngữ nhận diện là tiếng Trung Phổ Thông
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        // Xử lý khi có kết quả trả về
+        recognition.onresult = function(event) {
+            const speechToText = event.results[0][0].transcript;
+            const currentWord = wordList[currentIndex].zh;
+            
+            // Xóa các dấu câu cơ bản để so sánh chính xác hơn
+            const cleanSpeech = speechToText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！]/g,"");
+            const cleanTarget = currentWord.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！]/g,"");
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+
+            if (cleanSpeech === cleanTarget) {
+                resultDiv.className = "success";
+                resultDiv.innerHTML = `🎉 Chính xác!<br><span class="user-voice">Bạn vừa nói: "${speechToText}"</span>`;
+            } else {
+                resultDiv.className = "fail";
+                resultDiv.innerHTML = `❌ Chưa đúng rồi!<br><span class="user-voice">Bạn vừa nói: "${speechToText}" (Cần nói: "${currentWord}")</span>`;
+            }
+            resetMicButton();
+        };
+
+        recognition.onerror = function() {
+            alert("Không nghe rõ, bạn vui lòng thử lại hoặc cấp quyền Micro nhé!");
+            resetMicButton();
+        };
+
+        recognition.onend = function() {
+            resetMicButton();
+        };
+    } else {
+        alert("Trình duyệt của bạn không hỗ trợ nhận diện giọng nói. Hãy dùng Google Chrome nhé!");
+    }
+
+    // 1. Chức năng Phát âm mẫu (Text to Speech)
+    function playAudio() {
+        const text = document.getElementById('zh-text').innerText;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'zh-CN'; // Giọng Trung chuẩn
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // 2. Chức năng Bắt đầu nhận diện giọng nói
+    function startRecognition() {
+        if (!recognition) return;
+        
+        const micBtn = document.getElementById('btn-mic');
+        micBtn.innerText = "🛑 Đang nghe...";
+        micBtn.classList.add('recording');
+        
+        document.getElementById('result').style.display = 'none'; // Ẩn kết quả cũ
+        recognition.start();
+    }
+
+    function resetMicButton() {
+        const micBtn = document.getElementById('btn-mic');
+        micBtn.innerText = "🎤 Nhấn & Nói";
+        micBtn.classList.remove('recording');
+    }
+
+    // 3. Chuyển sang từ tiếp theo
+    function nextWord() {
+        currentIndex = (currentIndex + 1) % wordList.length;
+        document.getElementById('zh-text').innerText = wordList[currentIndex].zh;
+        document.getElementById('py-text').innerText = wordList[currentIndex].py;
+        document.getElementById('vn-text').innerText = "Ý nghĩa: " + wordList[currentIndex].vn;
+        document.getElementById('result').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
+
